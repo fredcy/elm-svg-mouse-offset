@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html
 import Html.App as Html
-import Json.Decode as Json
+import Json.Decode as Json exposing ((:=))
 import Mouse exposing (Position)
 import Svg exposing (Svg)
 import Svg.Attributes exposing (..)
@@ -23,6 +23,10 @@ type Msg
     | MouseMove Position
 
 
+marginScene =
+    20
+
+
 main : Program Never
 main =
     Html.program { init = init, update = update, view = view, subscriptions = subscriptions }
@@ -41,7 +45,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg |> Debug.log "msg" of
         WindowSize { width, height } ->
-            ( { model | size = Window.Size (width - 20) (height - 100) }, Cmd.none )
+            ( { model | size = Window.Size (width - 2 * marginScene) (height - 100 - 2 * marginScene) }, Cmd.none )
 
         MouseMove pos ->
             ( { model | pos = pos }, Cmd.none )
@@ -63,11 +67,16 @@ scene model =
     Svg.svg
         [ width <| toString model.size.width
         , height <| toString model.size.height
-        , style "margin-left: 10px"
+        , style ("margin-left:" ++ px marginScene)
         ]
         [ background model
         , tracker model
         ]
+
+
+px : a -> String
+px n =
+    toString n ++ "px"
 
 
 background : Model -> Svg.Svg Msg
@@ -76,12 +85,17 @@ background model =
         [ width <| toString model.size.width
         , height <| toString model.size.height
         , fill "gray"
-        , VirtualDom.on "mousemove" (Json.map MouseMove Mouse.position)
+        , VirtualDom.on "mousemove" (Json.map MouseMove offsetPosition)
         ]
         []
 
 
-tracker : Model -> Svg Msg          
+offsetPosition : Json.Decoder Position
+offsetPosition =
+    Json.object2 Position ("offsetX" := Json.int) ("offsetY" := Json.int)
+
+
+tracker : Model -> Svg Msg
 tracker model =
     Svg.line
         [ x1 "0"
