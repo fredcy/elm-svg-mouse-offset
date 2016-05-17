@@ -3,12 +3,15 @@ module Main exposing (..)
 import Html
 import Html.App as Html
 import Json.Decode as Json exposing ((:=))
-import Mouse exposing (Position)
 import Svg exposing (Svg)
 import Svg.Attributes exposing (..)
 import Task
 import VirtualDom
 import Window
+
+
+type alias Position =
+    { x : Int, y : Int }
 
 
 type alias Model =
@@ -85,9 +88,16 @@ background model =
         [ width <| toString model.size.width
         , height <| toString model.size.height
         , fill "gray"
-        , VirtualDom.on "mousemove" (Json.map MouseMove offsetPosition)
+        , VirtualDom.onWithOptions "mousemove" options (Json.map MouseMove offsetPosition)
         ]
         []
+
+
+{-| These options are an attempt to prevent double- and triple-clicking from
+propagating and selecting text outside the SVG scene. Doesn't work.
+-}
+options =
+    { preventDefault = True, stopPropagation = True }
 
 
 offsetPosition : Json.Decoder Position
