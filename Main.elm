@@ -85,8 +85,8 @@ px n =
 background : Model -> Svg.Svg Msg
 background model =
     Svg.rect
-        [ width <| toString model.size.width
-        , height <| toString model.size.height
+        [ width <| toString <| model.size.width - 20
+        , height <| toString <| model.size.height - 20
         , fill "gray"
         , VirtualDom.onWithOptions "mousemove" options (Json.map MouseMove offsetPosition)
         ]
