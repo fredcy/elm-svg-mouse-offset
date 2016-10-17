@@ -1,8 +1,7 @@
 module Main exposing (..)
 
 import Html
-import Html.App as Html
-import Json.Decode as Json exposing ((:=))
+import Json.Decode as Json
 import Svg exposing (Svg)
 import Svg.Attributes exposing (..)
 import Task
@@ -30,7 +29,7 @@ marginScene =
     20
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     Html.program { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -40,7 +39,7 @@ init =
     ( { size = Window.Size 600 600
       , pos = Position 0 0
       }
-    , Task.perform (\_ -> Debug.crash "task") WindowSize Window.size
+    , Task.perform WindowSize Window.size
     )
 
 
@@ -102,7 +101,7 @@ options =
 
 offsetPosition : Json.Decoder Position
 offsetPosition =
-    Json.object2 Position ("offsetX" := Json.int) ("offsetY" := Json.int)
+    Json.map2 Position (Json.field "offsetX" Json.int) (Json.field "offsetY" Json.int)
 
 
 tracker : Model -> Svg Msg
